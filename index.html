@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jagdamba Store - Phone Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    h2 { color: #2874f0; }
+    input { padding: 10px; margin: 10px 0; width: 100%; max-width: 300px; }
+    button { padding: 10px 20px; background: #2874f0; color: #fff; border: none; cursor: pointer; }
+    #recaptcha-container { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>📱 Jagdamba Store - Phone Login</h2>
+
+  <input type="text" id="phoneNumber" placeholder="+91XXXXXXXXXX" />
+  <div id="recaptcha-container"></div>
+  <button onclick="sendOTP()">Send OTP</button>
+
+  <br><br>
+  <input type="text" id="otp" placeholder="Enter OTP" />
+  <button onclick="verifyOTP()">Verify OTP</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB4L_bwfC091-2vAWldax6kG-C3UFBzpbs",
+      authDomain: "jagdamba-store-13edc.firebaseapp.com",
+      databaseURL: "https://jagdamba-store-13edc-default-rtdb.firebaseio.com",
+      projectId: "jagdamba-store-13edc",
+      storageBucket: "jagdamba-store-13edc.firebasestorage.app",
+      messagingSenderId: "1057097474316",
+      appId: "1:1057097474316:web:081926ac8a7db950956929"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+      'size': 'normal',
+      'callback': (response) => {
+        console.log("reCAPTCHA solved");
+      }
+    }, auth);
+
+    window.sendOTP = () => {
+      const phoneNumber = document.getElementById('phoneNumber').value;
+      const appVerifier = window.recaptchaVerifier;
+      signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          alert("OTP Sent!");
+        }).catch((error) => {
+          alert("Error: " + error.message);
+        });
+    };
+
+    window.verifyOTP = () => {
+      const otp = document.getElementById('otp').value;
+      window.confirmationResult.confirm(otp).then((result) => {
+        const user = result.user;
+        alert("Login Success! Phone: " + user.phoneNumber);
+      }).catch((error) => {
+        alert("Invalid OTP!");
+      });
+    };
+  </script>
+
+</body>
+</html>
